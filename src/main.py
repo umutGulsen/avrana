@@ -12,22 +12,26 @@ def square_diff(x1, x2):
 def main() -> None:
 
     sim_params = {
-        "simulation_duration": 100,
+        "simulation_duration": 1000,
     }
     state_count = 3
     system_params = {
         "state_count": state_count,
-        "state_name_list": ["A", "B", "C"],
+        "state_name_list": ["Fox", "Rabbit", "Grass"],
         "action_count": 2,
         "state_penalty_functions": [square_diff for _ in range(state_count)]
     }
 
-    effect_matrix = .01 * np.random.randn(system_params["state_count"], system_params["state_count"])
-    #np.fill_diagonal(effect_matrix, 0)
+    effect_matrix = np.array([[0, -1, 0],
+    [1, 0, -1],
+    [0, 1, 0]]).T
+    #.01 * np.random.randn(system_params["state_count"], system_params["state_count"])
+    np.fill_diagonal(effect_matrix, -.4)
     system_matrices = {
         "effect_matrix": effect_matrix,
         "state_vector": np.random.randn(system_params["state_count"], 1),
-        "state_penalty_vector": np.ones((system_params["state_count"], 1))
+        "state_penalty_vector": np.ones((system_params["state_count"], 1)),
+        "state_target_vector": np.array([[0], [50], [0]])
     }
     sim = Simulation(**sim_params)
     s = System(**system_params, **system_matrices)

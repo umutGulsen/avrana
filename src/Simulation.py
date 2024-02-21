@@ -32,14 +32,6 @@ class Simulation:
         sys_avr.system_wellness -= penalty_sum
         self.system_wellness_history[:, self.clock] = sys_avr.system_wellness
 
-    def run_simulation(self, sys_avr) -> None:
-        sim_start_time = time.time()
-        keep_running = True
-        while keep_running:
-            keep_running = self.tick(sys_avr)
-        sim_end_time = time.time()
-        self.sim_run_time = sim_end_time - sim_start_time
-
     def tick(self, sys_avr) -> bool:
         self.update_wellness(sys_avr)
         self.state_history[:, self.clock] = sys_avr.state_vector[:, 0]
@@ -48,10 +40,20 @@ class Simulation:
             inherent_change_vector = np.dot(sys_avr.effect_matrix, sys_avr.state_vector)
             action_change_vector = np.dot(sys_avr.action_effect_matrix, self.action_history[:, [self.clock]])
             sys_avr.state_vector += inherent_change_vector + action_change_vector
+            sys_avr.state_vector = np.maximum(sys_avr.state_vector, sys_avr.lower_state_constraints)
+            sys_avr.state_vector = np.minimum(sys_avr.state_vector, sys_avr.upper_state_constraints)
             self.clock += 1
             return True
         else:
             return False
+
+    def run_simulation(self, sys_avr) -> None:
+        sim_start_time = time.time()
+        keep_running = True
+        while keep_running:
+            keep_running = self.tick(sys_avr)
+        sim_end_time = time.time()
+        self.sim_run_time = sim_end_time - sim_start_time
 
     def act(self, sys_avr):
         action_vector = self.agent.generate_single_random_action(sys_avr.action_count)
