@@ -17,6 +17,7 @@ class System:
     effect_matrix: np.ndarray = None
     state_vector: np.ndarray = None
     state_history: np.ndarray = field(default=None, repr=False)
+    system_wellness_history: np.ndarray = field(default=None, repr=False)
     action_effect_matrix: np.ndarray = None
     action_cost_vector: np.ndarray = None
     action_history: np.ndarray = field(default=None, repr=False)
@@ -30,6 +31,7 @@ class System:
         self.effect_matrix = np.zeros((self.state_count, self.state_count)) if self.effect_matrix is None else self.effect_matrix
         self.state_vector = np.zeros((self.state_count, 1)) if self.state_vector is None else self.state_vector
         self.state_history = np.zeros((self.state_count, 1 + self.simulation_duration // self.history_interval))
+        self.system_wellness_history = np.zeros((1, 1 + self.simulation_duration // self.history_interval))
         self.action_effect_matrix = np.zeros((self.state_count, self.action_count)) if self.action_effect_matrix is None else self.action_effect_matrix
         self.action_cost_vector = np.zeros((self.action_count, 1)) if self.action_cost_vector is None else self.action_cost_vector
         self.action_history = np.zeros((self.action_count, self.simulation_duration))
@@ -46,17 +48,16 @@ class System:
         self.state_penalty_vector = np.random.randn(self.state_count, 1) if self.state_penalty_vector is None else self.state_penalty_vector
 
     def tick(self):
+        self.update_wellness()
+        self.state_history[:, self.clock] = self.state_vector[:, 0]
+
         if self.clock < self.simulation_duration:
-            self.state_history[:, self.clock] = self.state_vector[:, 0]
             inherent_change_vector = np.dot(self.effect_matrix, self.state_vector)
             action_change_vector = np.dot(self.action_effect_matrix, self.action_history[:, [self.clock]])
-            change_vector = inherent_change_vector + action_change_vector
-            self.state_vector += change_vector
-            self.update_wellness()
+            self.state_vector += inherent_change_vector + action_change_vector
             self.clock += 1
             return True
         else:
-            self.state_history[:, self.clock] = self.state_vector[:, 0]
             return False
 
     def run_simulation(self):
@@ -69,10 +70,13 @@ class System:
 
     def update_wellness(self):
         deviation_from_target = np.abs(self.state_vector - self.state_target_vector)
-        self.system_wellness = np.sum(self.state_penalty_vector * deviation_from_target).astype(float)
+        self.system_wellness = -np.sum(self.state_penalty_vector * deviation_from_target).astype(float)
+        self.system_wellness_history[:, self.clock] = self.system_wellness
 
     def draw_state_history(self):
+        fig, ax = plt.subplots(nrows=2, figsize=(14, 6))
         for i, state in enumerate(self.state_history):
-            plt.plot(state, label=i)
-        plt.legend()
-        plt.show()
+            ax[0].plot(state, label=i)
+        ax[1].plot(self.system_wellness_history[0])
+        ax[0].legend()
+        fig.savefig("../artifacts/state_history.png")
