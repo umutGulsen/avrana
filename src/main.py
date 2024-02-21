@@ -9,7 +9,7 @@ def square_diff(x1, x2):
     return (x1 - x2) ** 2
 
 
-def main():
+def main() -> None:
 
     sim_params = {
         "simulation_duration": 100,
@@ -17,12 +17,13 @@ def main():
     state_count = 3
     system_params = {
         "state_count": state_count,
+        "state_name_list": ["A", "B", "C"],
         "action_count": 2,
         "state_penalty_functions": [square_diff for _ in range(state_count)]
     }
 
-    effect_matrix = .1 * np.random.randn(system_params["state_count"], system_params["state_count"])
-    np.fill_diagonal(effect_matrix, 0)
+    effect_matrix = .01 * np.random.randn(system_params["state_count"], system_params["state_count"])
+    #np.fill_diagonal(effect_matrix, 0)
     system_matrices = {
         "effect_matrix": effect_matrix,
         "state_vector": np.random.randn(system_params["state_count"], 1),
@@ -34,7 +35,7 @@ def main():
     s.random_init()
     sim.initialize_simulation(sys_avr=s, agent=a)
     sim.run_simulation(s)
-    sim.draw_state_history()
+    sim.draw_state_history(s)
     print(repr(s))
     print(repr(sim))
 

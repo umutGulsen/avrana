@@ -16,13 +16,13 @@ class Simulation:
     clock: int = field(default=0, repr=False)
     agent = None
 
-    def initialize_simulation(self, sys_avr, agent):
+    def initialize_simulation(self, sys_avr, agent) -> None:
         self.state_history = np.zeros((sys_avr.state_count, 1 + self.simulation_duration // self.history_interval))
         self.system_wellness_history = np.zeros((1, 1 + self.simulation_duration // self.history_interval))
         self.action_history = np.zeros((sys_avr.action_count, 1 + self.simulation_duration + sys_avr.action_delay))
         self.agent = agent
 
-    def update_wellness(self, sys_avr):
+    def update_wellness(self, sys_avr) -> None:
         penalty_sum = 0
         for i, penalty_func in enumerate(sys_avr.state_penalty_functions):
             if penalty_func is not None:
@@ -32,7 +32,7 @@ class Simulation:
         sys_avr.system_wellness -= penalty_sum
         self.system_wellness_history[:, self.clock] = sys_avr.system_wellness
 
-    def run_simulation(self, sys_avr):
+    def run_simulation(self, sys_avr) -> None:
         sim_start_time = time.time()
         keep_running = True
         while keep_running:
@@ -40,7 +40,7 @@ class Simulation:
         sim_end_time = time.time()
         self.sim_run_time = sim_end_time - sim_start_time
 
-    def tick(self, sys_avr):
+    def tick(self, sys_avr) -> bool:
         self.update_wellness(sys_avr)
         self.state_history[:, self.clock] = sys_avr.state_vector[:, 0]
         self.act(sys_avr)
@@ -58,13 +58,13 @@ class Simulation:
         action_occurrence_time = self.clock + sys_avr.action_delay
         self.action_history[:, [action_occurrence_time]] = action_vector
 
-    def draw_state_history(self):
+    def draw_state_history(self, sys_avr) -> None:
         fig, ax = plt.subplots(nrows=3, figsize=(14, 6))
         for i, state in enumerate(self.state_history):
-            ax[0].plot(state, label=i)
+            ax[0].plot(state, label=sys_avr.state_name_list[i])
 
         for i, action in enumerate(self.action_history):
-            ax[2].scatter(range(len(action)), action, label=i)
+            ax[2].scatter(range(len(action)), action, s=3, label=i, alpha=.3)
 
         ax[1].plot(self.system_wellness_history[0], label="Wellness")
 
