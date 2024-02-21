@@ -23,8 +23,13 @@ class Simulation:
         self.agent = agent
 
     def update_wellness(self, sys_avr):
+        penalty_sum = 0
+        for i, penalty_func in enumerate(sys_avr.state_penalty_functions):
+            if penalty_func is not None:
+                penalty_sum += penalty_func(sys_avr.state_vector[i, 0], sys_avr.state_target_vector[i, 0])
         deviation_from_target = np.abs(sys_avr.state_vector - sys_avr.state_target_vector)
         sys_avr.system_wellness = -np.sum(sys_avr.state_penalty_vector * deviation_from_target).astype(float)
+        sys_avr.system_wellness -= penalty_sum
         self.system_wellness_history[:, self.clock] = sys_avr.system_wellness
 
     def run_simulation(self, sys_avr):

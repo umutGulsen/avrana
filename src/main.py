@@ -5,17 +5,23 @@ from Simulation import Simulation
 from System import System
 
 
+def square_diff(x1, x2):
+    return (x1 - x2) ** 2
+
+
 def main():
 
     sim_params = {
-        "simulation_duration": 10,
+        "simulation_duration": 100,
+    }
+    state_count = 3
+    system_params = {
+        "state_count": state_count,
+        "action_count": 2,
+        "state_penalty_functions": [square_diff for _ in range(state_count)]
     }
 
-    system_params = {
-        "state_count": 3,
-        "action_count": 2
-        }
-    effect_matrix = .001 * np.random.randn(system_params["state_count"], system_params["state_count"])
+    effect_matrix = .1 * np.random.randn(system_params["state_count"], system_params["state_count"])
     np.fill_diagonal(effect_matrix, 0)
     system_matrices = {
         "effect_matrix": effect_matrix,
