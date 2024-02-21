@@ -14,11 +14,13 @@ class Simulation:
     system_wellness_history: np.ndarray = field(default=None, repr=False)
     action_history: np.ndarray = field(default=None, repr=False)
     clock: int = field(default=0, repr=False)
+    agent = None
 
-    def initialize_simulation(self, sys_avr):
+    def initialize_simulation(self, sys_avr, agent):
         self.state_history = np.zeros((sys_avr.state_count, 1 + self.simulation_duration // self.history_interval))
         self.system_wellness_history = np.zeros((1, 1 + self.simulation_duration // self.history_interval))
-        self.action_history = np.zeros((sys_avr.action_count, self.simulation_duration))
+        self.action_history = np.zeros((sys_avr.action_count, 1 + self.simulation_duration + sys_avr.action_delay))
+        self.agent = agent
 
     def update_wellness(self, sys_avr):
         deviation_from_target = np.abs(sys_avr.state_vector - sys_avr.state_target_vector)
@@ -36,7 +38,7 @@ class Simulation:
     def tick(self, sys_avr):
         self.update_wellness(sys_avr)
         self.state_history[:, self.clock] = sys_avr.state_vector[:, 0]
-
+        self.act(sys_avr)
         if self.clock < self.simulation_duration:
             inherent_change_vector = np.dot(sys_avr.effect_matrix, sys_avr.state_vector)
             action_change_vector = np.dot(sys_avr.action_effect_matrix, self.action_history[:, [self.clock]])
@@ -46,13 +48,22 @@ class Simulation:
         else:
             return False
 
-    def act(self, action):
-        self.action_history[:, [self.clock + self.action_delay]] = action
+    def act(self, sys_avr):
+        action_vector = self.agent.generate_single_random_action(sys_avr.action_count)
+        action_occurrence_time = self.clock + sys_avr.action_delay
+        self.action_history[:, [action_occurrence_time]] = action_vector
 
     def draw_state_history(self):
-        fig, ax = plt.subplots(nrows=2, figsize=(14, 6))
+        fig, ax = plt.subplots(nrows=3, figsize=(14, 6))
         for i, state in enumerate(self.state_history):
             ax[0].plot(state, label=i)
+
+        for i, action in enumerate(self.action_history):
+            ax[2].scatter(range(len(action)), action, label=i)
+
         ax[1].plot(self.system_wellness_history[0], label="Wellness")
+
         ax[0].legend()
+        ax[1].legend()
+        ax[2].legend()
         fig.savefig("../artifacts/state_history.png")
