@@ -8,14 +8,14 @@ from System import System
 def main():
 
     sim_params = {
-        "simulation_duration": 100,
+        "simulation_duration": 10,
     }
 
     system_params = {
         "state_count": 3,
         "action_count": 2
         }
-    effect_matrix = .1 * np.random.randn(system_params["state_count"], system_params["state_count"])
+    effect_matrix = .001 * np.random.randn(system_params["state_count"], system_params["state_count"])
     np.fill_diagonal(effect_matrix, 0)
     system_matrices = {
         "effect_matrix": effect_matrix,

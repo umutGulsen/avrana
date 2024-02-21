@@ -1,4 +1,3 @@
-
 from dataclasses import dataclass
 
 import numpy as np
@@ -33,7 +32,7 @@ class System:
     def random_init(self):
         self.effect_matrix = np.random.randn(self.state_count, self.state_count) if self.effect_matrix is None else self.effect_matrix
         self.state_vector = np.random.randn(self.state_count, 1) if self.state_vector is None else self.state_vector
-        self.action_effect_matrix = np.random.randn(self.state_count, self.action_count) if self.action_effect_matrix is None else self.action_effect_matrix
+        self.action_effect_matrix = 100 * np.random.randn(self.state_count, self.action_count)
         self.action_cost_vector = np.random.randn(self.action_count, 1) if self.action_cost_vector is None else self.action_cost_vector
         self.state_target_vector = np.random.randn(self.state_count, 1) if self.state_target_vector is None else self.state_target_vector
         self.state_penalty_vector = np.random.randn(self.state_count, 1) if self.state_penalty_vector is None else self.state_penalty_vector
