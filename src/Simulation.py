@@ -39,7 +39,8 @@ class Simulation:
         if self.clock < self.simulation_duration:
             inherent_change_vector = np.dot(sys_avr.effect_matrix, sys_avr.state_vector)
             action_change_vector = np.dot(sys_avr.action_effect_matrix, self.action_history[:, [self.clock]])
-            sys_avr.state_vector += inherent_change_vector + action_change_vector
+            dynamic_effect_vector = sys_avr.calculate_dynamic_effects()
+            sys_avr.state_vector += inherent_change_vector + action_change_vector + dynamic_effect_vector
             sys_avr.state_vector = np.maximum(sys_avr.state_vector, sys_avr.lower_state_constraints)
             sys_avr.state_vector = np.minimum(sys_avr.state_vector, sys_avr.upper_state_constraints)
             self.clock += 1
