@@ -2,7 +2,7 @@
 a System Optimizer AI library
 
 TODO list:
-- Ability to save the systems
+- Ability to save the systems - ✔
 - better readme
 - allowing agent to do nothing
 - agent decision making based on a neural network

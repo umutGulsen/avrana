@@ -1,3 +1,4 @@
+import pickle
 from dataclasses import dataclass, field
 
 import numpy as np
@@ -35,8 +36,8 @@ class System:
         self.state_target_vector = np.zeros((self.state_count, 1)) if self.state_target_vector is None else self.state_target_vector
         self.state_penalty_vector = np.zeros((self.state_count, 1)) if self.state_penalty_vector is None else self.state_penalty_vector
         self.state_name_list = [i for i in range(self.state_count)] if self.state_name_list is None else self.state_name_list
-        self.lower_state_constraints = .1+np.zeros((self.state_count, 1)) if self.lower_state_constraints is None else self.lower_state_constraints
-        self.upper_state_constraints = 20 * np.ones((self.state_count, 1)) if self.upper_state_constraints is None else self.upper_state_constraints
+        self.lower_state_constraints = .01+np.zeros((self.state_count, 1)) if self.lower_state_constraints is None else self.lower_state_constraints
+        self.upper_state_constraints = 1000 * np.ones((self.state_count, 1)) if self.upper_state_constraints is None else self.upper_state_constraints
 
     def random_init(self):
         self.effect_matrix = np.random.randn(self.state_count, self.state_count) if self.effect_matrix is None else self.effect_matrix
@@ -54,3 +55,7 @@ class System:
         for dynamic in self.extra_effects:
             total_delta += dynamic.run_effect(self.state_vector)
         return total_delta
+
+    def save(self, path: str) -> None:
+        with open(path, "wb") as save_path:
+            pickle.dump(self, save_path, protocol=pickle.HIGHEST_PROTOCOL)

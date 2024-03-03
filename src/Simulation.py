@@ -62,7 +62,7 @@ class Simulation:
         self.action_history[:, [action_occurrence_time]] = action_vector
 
     def draw_state_history(self, sys_avr) -> None:
-        fig, ax = plt.subplots(nrows=3, figsize=(14, 6))
+        fig, ax = plt.subplots(nrows=3, figsize=(14, 9))
         for i, state in enumerate(self.state_history):
             ax[0].plot(state, label=sys_avr.state_name_list[i])
 
