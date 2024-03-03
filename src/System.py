@@ -1,6 +1,6 @@
-import pickle
 from dataclasses import dataclass, field
 
+import dill as pickle
 import numpy as np
 
 from Dynamic import Dynamic
@@ -8,8 +8,9 @@ from Dynamic import Dynamic
 
 @dataclass
 class System:
+    extra_effects: list = field(default_factory=list)
     state_count: int = 1
-    action_count: int = 1
+    action_count: int = 10
     system_wellness: float = 0.0
     action_delay: int = 0
 
@@ -26,7 +27,7 @@ class System:
     lower_state_constraints: np.ndarray = None
     upper_state_constraints: np.ndarray = None
 
-    extra_effects = []
+
 
     def __post_init__(self):
         self.effect_matrix = np.zeros((self.state_count, self.state_count)) if self.effect_matrix is None else self.effect_matrix

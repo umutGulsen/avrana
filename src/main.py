@@ -1,5 +1,4 @@
-import pickle
-
+import dill as pickle
 import numpy as np
 
 from Agent import Agent
@@ -14,7 +13,8 @@ def square_diff(x1, x2):
 
 def load_system(path):
     with open(path, 'rb') as load_path:
-        return pickle.load(load_path)
+        s = pickle.load(load_path)
+    return s
 
 
 def create_ecosystem():
@@ -58,7 +58,7 @@ def create_ecosystem():
     }
 
     effect_matrix = np.array([[0, 0, 0],
-                              [0, 0, 0],
+                              [0, 5, 0],
                               [0, 0, 0]]).T
     # .01 * np.random.randn(system_params["state_count"], system_params["state_count"])
     np.fill_diagonal(effect_matrix, -.4)
@@ -68,12 +68,12 @@ def create_ecosystem():
         "state_penalty_vector": np.ones((system_params["state_count"], 1)),
         "state_target_vector": np.array([[0], [50], [0]])
     }
-    s = System(**system_params, **system_matrices)
-    s.insert_effect(Dynamic(dynamic_func=on_rabbit, recipient=1))
-    s.insert_effect(Dynamic(dynamic_func=on_grass, recipient=2))
-    s.insert_effect(Dynamic(dynamic_func=on_fox, recipient=0))
+    sy = System(**system_params, **system_matrices)
+    sy.insert_effect(Dynamic(dynamic_func=on_rabbit, recipient=1))
+    sy.insert_effect(Dynamic(dynamic_func=on_grass, recipient=2))
+    sy.insert_effect(Dynamic(dynamic_func=on_fox, recipient=0))
 
-    s.save("../artifacts/eco.json")
+    sy.save("../artifacts/eco.pkl")
 
 
 def main() -> None:
@@ -84,8 +84,8 @@ def main() -> None:
     sim = Simulation(**sim_params)
 
     a = Agent()
-    # create_ecosystem()
-    s = load_system("../artifacts/eco.json")
+    #create_ecosystem()
+    s = load_system("../artifacts/eco.pkl")
     s.random_init()
     sim.initialize_simulation(sys_avr=s, agent=a)
     sim.run_simulation(s)
