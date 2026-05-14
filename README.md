@@ -19,3 +19,6 @@ TODO list:
 - using transformers for the observer class
 - giving the observer class the ability to create ghost-states to capture hidden unrepresented effects
 - thru observer class, simulating the continuation of a system state history
+
+
+test text
